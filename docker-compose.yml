@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  typesense-dashboard:
+    build: .
+    container_name: typesense-dashboard
+    ports:
+      - "9111:80"
+    restart: unless-stopped

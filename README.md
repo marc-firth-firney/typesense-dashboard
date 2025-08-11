@@ -25,8 +25,18 @@ use environment variable `PUBLIC_PATH` if you need something else than `/`
 Example usage:
 
 ```bash
-$ docker build -t typesense-dashboard .
-$ docker run -d -p 80:80 typesense-dashboard
+docker-compose down
+docker-compose up -d
+open http://localhost:9111
+```
+
+Or manually
+```bash
+docker stop typesense-dashboard
+docker rm typesense-dashboard
+docker build -t typesense-dashboard .
+docker run -d -p 9111:80 --name typesense-dashboard typesense-dashboard
+open http://localhost:9111
 ```
 
 `caddy` is used for serving the actual files.
