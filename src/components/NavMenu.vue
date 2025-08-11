@@ -1,6 +1,7 @@
 <template>
-  <q-list>
-    <q-item v-ripple clickable to="/" exact>
+  <div class="column fit no-wrap">
+    <q-list class="col overflow-auto">
+      <q-item v-ripple clickable to="/" exact>
       <q-item-section avatar>
         <q-icon name="sym_s_dns" />
       </q-item-section>
@@ -77,12 +78,17 @@
         <q-select
           v-model="currentCollection"
           borderless
-          :options="store.data.collections"
+          :options="filteredCollections"
+          use-input
+          fill-input
+          hide-selected
+          input-debounce="0"
           label="Collection"
           option-label="name"
           color="white"
           label-color="white"
           dark
+          @filter="collectionFilterFn"
         />
       </q-item-section>
     </q-item>
@@ -156,15 +162,40 @@
 
       <q-item-section> Add Document </q-item-section>
     </q-item>
-  </q-list>
+    </q-list>
+    <ProjectInfo v-if="!store.uiConfig.hideProjectInfo" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { CollectionSchema } from 'typesense/lib/Typesense/Collection';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useNodeStore } from 'src/stores/node';
+import ProjectInfo from './ProjectInfo.vue';
 
 const store = useNodeStore();
+
+const sortedCollections = computed(() =>
+  store.data.collections.slice(0).sort((a, b) => a.name.localeCompare(b.name)),
+);
+
+const filteredCollections = ref<CollectionSchema[]>([]);
+
+function collectionFilterFn(val: string, update: (fn: () => void) => void) {
+  if (val === '') {
+    update(() => {
+      filteredCollections.value = sortedCollections.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    filteredCollections.value = sortedCollections.value.filter((v) =>
+      v.name.toLowerCase().includes(needle),
+    );
+  });
+}
 
 const currentCollection = computed({
   get() {

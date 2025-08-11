@@ -48,12 +48,20 @@
           <div class="text-subtitle2 q-pt-md">{{ name }}</div>
           <ais-refinement-list class="q-mb-sm" :searchable="true" :attribute="name" />
         </div>
+
+        <div v-for="name in facetBooleanFields" :key="name" class="q-mb-sm">
+          <div class="text-subtitle2 q-pt-md">{{ name }}</div>
+          <ais-refinement-list class="q-mb-sm" :attribute="name" />
+        </div>
       </div>
       <div class="col-9">
         <ais-pagination class="q-mb-md" />
         <ais-hits>
           <template v-if="currentCollection" #item="{ item }">
-            <search-result-item :item="item"></search-result-item>
+            <search-result-item
+              :item="item"
+              @deleted="instantSearchInstance.refresh()"
+            ></search-result-item>
           </template>
         </ais-hits>
         <ais-pagination class="q-my-md" />
@@ -115,6 +123,13 @@ const facetStringFields = computed((): string[] => {
   if (!currentCollection.value || !currentCollection.value.fields) return [];
   return currentCollection.value.fields
     .filter((f) => f.facet && ['string', 'string[]'].includes(f.type) && !f.name.includes('.*'))
+    .map((f) => f.name);
+});
+
+const facetBooleanFields = computed((): string[] => {
+  if (!currentCollection.value || !currentCollection.value.fields) return [];
+  return currentCollection.value.fields
+    .filter((f) => f.facet && ['bool', 'bool[]'].includes(f.type) && !f.name.includes('.*'))
     .map((f) => f.name);
 });
 
